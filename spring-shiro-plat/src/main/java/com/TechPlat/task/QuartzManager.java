@@ -14,8 +14,11 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.quartz.impl.StdScheduler;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.TechPlat.model.ScheduledJob;
 import com.alibaba.druid.util.StringUtils;  
@@ -27,6 +30,10 @@ import static org.quartz.CronScheduleBuilder.*;
  * @author zjy 
  */  
 public class QuartzManager  {  
+	
+//	ApplicationContext ac = new ClassPathXmlApplicationContext("spring-quartz.xml");
+//	Scheduler scheduler = (StdScheduler)ac.getBean("scheduler");
+    
     private static SchedulerFactory gSchedulerFactory = new StdSchedulerFactory();    
     private static String JOB_GROUP_NAME = "Test_Group";    
     private static String TRIGGER_GROUP_NAME = "Test_TRIGGERGROUP_NAME";    
