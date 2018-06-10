@@ -110,6 +110,7 @@
                 title : '操作',
                 width : 130,
                 formatter : function(value, row, index) {
+                	debugger;
                     var str = '';
                         <shiro:hasPermission name="/user/edit">
                             str += $.formatString('<a href="javascript:void(0)" class="user-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-pencil icon-blue\'" onclick="editUserFun(\'{0}\');" >编辑</a>', row.id);

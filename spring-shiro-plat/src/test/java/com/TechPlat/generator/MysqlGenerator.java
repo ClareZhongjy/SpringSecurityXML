@@ -43,7 +43,7 @@ public class MysqlGenerator {
 		Properties props = getProperties();
 		AutoGenerator mpg = new AutoGenerator();
 
-		String outputDir = "/Users/lcm/Desktop/generator/code";
+		String outputDir = "D:\\Dev\\gen";
 		final String viewOutputDir = outputDir + "/view/";
 		
 		// 全局配置
@@ -54,7 +54,7 @@ public class MysqlGenerator {
 		gc.setEnableCache(false);// XML 二级缓存
 		gc.setBaseResultMap(true);// XML ResultMap
 		gc.setBaseColumnList(false);// XML columList
-		gc.setAuthor("zhixuan.wang");
+		gc.setAuthor("zjy");
 
 		// 自定义文件命名，注意 %s 会自动填充表实体属性！
 		gc.setMapperName("%sMapper");
@@ -105,7 +105,7 @@ public class MysqlGenerator {
 		// 包配置
 		PackageConfig pc = new PackageConfig();
 		pc.setModuleName(null);  //所属模块
-		pc.setParent("com.wangzhixuan"); // 自定义包路径
+		pc.setParent("com.TechPlat"); // 自定义包路径
 		pc.setController("controller"); // 这里是控制器包名，默认 web
 		pc.setEntity("model");
 		pc.setXml("sqlMapperXml");

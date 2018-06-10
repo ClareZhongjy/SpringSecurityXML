@@ -43,7 +43,9 @@
         <div data-options="region:'center', border:false">
             <div id="mainTabs" style="height:250px">
                 <div title="首页" data-options="iconCls:'glyphicon-home',border:false">
-                    <iframe src="http://www.dreamlu.net/" class="easyui-panel" data-options="fit:true,border:false" frameborder="0"></iframe>
+                  <!--    <iframe src="http://www.dreamlu.net/" class="easyui-panel" data-options="fit:true,border:false" frameborder="0"></iframe>-->
+                 <c:set var="mainURL" value="${pageContext.request.contextPath}/welcome/index"></c:set>
+                  <iframe src="${mainURL}" class="easyui-panel" data-options="fit:true,border:false" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
