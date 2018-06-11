@@ -6,6 +6,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import com.TechPlat.model.ScheduleJob;
 import com.TechPlat.model.ScheduledJob;
 
 public class QuartzFactory implements Job {
@@ -17,8 +18,8 @@ public class QuartzFactory implements Job {
 		
 		logger.info("--------start scheduleJob --------");
 		try{
-			ScheduledJob scheduledJob = (ScheduledJob) context.getMergedJobDataMap().get("scheduleJob");
-			
+			ScheduleJob scheduledJob = (ScheduleJob) context.getMergedJobDataMap().get("scheduleJob");
+			TaskUtils.invokMethod(scheduledJob);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

@@ -6,15 +6,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.TechPlat.commons.result.PageInfo;
 import com.TechPlat.mapper.TaskMapper;
+import com.TechPlat.model.ScheduleJob;
 import com.TechPlat.model.ScheduledJob;
 import com.TechPlat.model.Task;
 import com.TechPlat.service.ITaskService;
-import com.TechPlat.task.QuartzManager;
+
+import com.TechPlat.task.TaskManager;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 
@@ -31,18 +34,30 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 
 	@Autowired
 	private TaskMapper taskMapper;
+	@Autowired
+	private TaskManager taskM;
 
 	@Override
 	public void selectDataGrid(PageInfo pageInfo) {
-		List<ScheduledJob> list = new ArrayList<ScheduledJob>();
+		List<ScheduleJob> list = new ArrayList<ScheduleJob>();
 		Page<Map<String, Object>> page = new Page<Map<String, Object>>(pageInfo.getNowpage(), pageInfo.getSize());
 		page.setOrderByField(pageInfo.getSort());
 		page.setAsc(pageInfo.getOrder().equalsIgnoreCase("asc"));
 		Object jobName = pageInfo.getCondition().get("taskName");
 		if(null!=jobName){
-			list = QuartzManager.listJob(jobName.toString());
+			try {
+				list = taskM.getAllJob();
+			} catch (SchedulerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}else{
-			list = QuartzManager.listJob("");
+			try {
+				list = taskM.getAllJob();
+			} catch (SchedulerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		pageInfo.setRows(list);
@@ -64,15 +79,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //		qjob.setJobCron(job.getCronExpression());
 //		qjob.setCreTime(jobId);
 //		qjob.setDesc(job.getDesc());
-		try {
-			 flag = QuartzManager.addJob( Class.forName(job.getDesc()), job);
-			
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			
-		}
-		
+//		try {
+//			// flag = QuartzManager.addJob( Class.forName(job.getDesc()), job);
+//			
+//		} catch (ClassNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			
+//		}
+//		
 		return flag;
 		
 	}
