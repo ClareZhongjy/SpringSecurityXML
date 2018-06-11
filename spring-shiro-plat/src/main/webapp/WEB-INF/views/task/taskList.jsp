@@ -37,7 +37,7 @@
         }, {
             width : '80',
             title : '任务描述',
-            field : 'desc',
+            field : 'description',
             sortable : true
         },  {
             field : 'action',

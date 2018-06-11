@@ -2,9 +2,7 @@ package com.TechPlat.controller;
 
 import javax.validation.Valid;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Date;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.baomidou.mybatisplus.mapper.EntityWrapper;
-import com.baomidou.mybatisplus.plugins.Page;
 import com.TechPlat.commons.result.PageInfo;
 import com.TechPlat.commons.utils.StringUtils;
-import com.TechPlat.model.ScheduledJob;
+import com.TechPlat.model.ScheduleJob;
 import com.TechPlat.model.Task;
 import com.TechPlat.service.ITaskService;
 import com.TechPlat.commons.base.BaseController;
@@ -46,7 +42,7 @@ public class TaskController extends BaseController {
     
     @PostMapping("/dataGrid")
     @ResponseBody
-    public PageInfo dataGrid(ScheduledJob task, Integer page, Integer rows, String sort,String order) {
+    public PageInfo dataGrid(ScheduleJob task, Integer page, Integer rows, String sort,String order) {
         PageInfo pageInfo = new PageInfo(page, rows, sort, order);
         Map<String, Object> condition = new HashMap<String, Object>();
 
@@ -76,7 +72,7 @@ public class TaskController extends BaseController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public Object add(@Valid ScheduledJob task) {
+    public Object add(@Valid ScheduleJob task) {
        
         boolean b = taskService.addTask(task);
         if (b) {

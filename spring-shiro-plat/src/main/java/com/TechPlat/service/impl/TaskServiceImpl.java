@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.TechPlat.commons.result.PageInfo;
 import com.TechPlat.mapper.TaskMapper;
 import com.TechPlat.model.ScheduleJob;
-import com.TechPlat.model.ScheduledJob;
 import com.TechPlat.model.Task;
 import com.TechPlat.service.ITaskService;
 
@@ -35,7 +34,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 	@Autowired
 	private TaskMapper taskMapper;
 	@Autowired
-	private TaskManager taskM;
+	private TaskManager taskManger;
 
 	@Override
 	public void selectDataGrid(PageInfo pageInfo) {
@@ -46,14 +45,14 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 		Object jobName = pageInfo.getCondition().get("taskName");
 		if(null!=jobName){
 			try {
-				list = taskM.getAllJob();
+				list = taskManger.getAllJob(jobName.toString());
 			} catch (SchedulerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}else{
 			try {
-				list = taskM.getAllJob();
+				list = taskManger.getAllJob("");
 			} catch (SchedulerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -66,7 +65,7 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 	}
 
 	@Override
-	public boolean addTask(ScheduledJob job) {
+	public boolean addTask(ScheduleJob job) {
 		boolean flag = false;
 		
 		SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd");
@@ -79,15 +78,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 //		qjob.setJobCron(job.getCronExpression());
 //		qjob.setCreTime(jobId);
 //		qjob.setDesc(job.getDesc());
-//		try {
-//			// flag = QuartzManager.addJob( Class.forName(job.getDesc()), job);
-//			
-//		} catch (ClassNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			
-//		}
-//		
+		try {
+		   flag = taskManger.addJob( Class.forName(job.getDescription()), job);
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+		}
+		
 		return flag;
 		
 	}

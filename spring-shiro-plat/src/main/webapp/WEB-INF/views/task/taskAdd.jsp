@@ -34,12 +34,17 @@
                 <tr>
                     <td>Corn 表达式</td>
                     <td><input name="cronExpression" type="text" placeholder="请输入运行时间" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-                	<td>job 名称</td>
-                    <td><input name="jobName" type="text" placeholder="请输入名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-            		<td>class</td>
-                    <td><input name="desc" type="text" placeholder="请输入名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
-            
+                	
                 </tr> 
+                <tr>
+                	<td>任务名称</td>
+                    <td><input name="jobName" type="text" placeholder="请输入任务名称" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
+                
+                <tr>
+                	<td>任务处理类</td>
+                    <td><input name="description" type="text" placeholder="请输入任务处理" class="easyui-validatebox span2" data-options="required:true" value=""></td>
+                </tr>
                 
                 
             </table>

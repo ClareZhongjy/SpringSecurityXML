@@ -25,69 +25,80 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.TechPlat.model.ScheduleJob;
 
+
 @Service
 public class TaskManager {
-	private Logger logger = LogManager.getLogger(getClass()); 
+	private Logger logger = LogManager.getLogger(getClass());
 	@Autowired
 	private SchedulerFactoryBean schedulerFactoryBean;
-	
+
 	private static SchedulerFactory gSchedulerFactory = new StdSchedulerFactory();
-	/**
-	 * 添加任务
-	 * 
-	 * @param scheduleJob
-	 * @throws SchedulerException
-	 */
-	public void addJob(ScheduleJob job) throws SchedulerException {
-		if (job == null || !ScheduleJob.STATUS_NORMAL.equals(job.getJobStatus())) {
-			return;
-		}
+	
+	private static String JOB_GROUP_NAME = "Default_Group";
+	
+	private static String TRIGGER_GROUP_NAME = "Default_Trigger_Group";
 
-		Scheduler scheduler = gSchedulerFactory.getScheduler();
-		logger.debug(scheduler + ".......................................................................................add");
-		TriggerKey triggerKey = TriggerKey.triggerKey(job.getJobName(), job.getJobGroup());
+	@SuppressWarnings("unchecked")
+	public  boolean addJob(Class cls, ScheduleJob scheduleJob) {
+		try {
+			Scheduler sched = schedulerFactoryBean.getScheduler();
 
-		CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+			String jobName = scheduleJob.getJobName();
+			String cronExpress = scheduleJob.getCronExpression();
+			String jobGroup = scheduleJob.getJobGroup();
+		
+			if(StringUtils.isEmpty(jobGroup)){
+				jobGroup = JOB_GROUP_NAME;
+			}
+			
+			JobKey jobKey = new JobKey(jobName, jobGroup);
+			
+			JobDetail jobDetail = JobBuilder.newJob(cls).withIdentity(jobKey).build();
 
-		// 不存在，创建一个
-		if (null == trigger) {
-			Class clazz = ScheduleJob.CONCURRENT_IS.equals(job.getIsConcurrent()) ? QuartzFactory.class : QuartzJobFactoryDisallowConcurrentExecution.class;
+			TriggerKey triggerKey = new TriggerKey(jobName, TRIGGER_GROUP_NAME);
+			
+			CronScheduleBuilder schedBuilder = CronScheduleBuilder.cronSchedule(cronExpress);
+			
+			Trigger trigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(schedBuilder).build();
 
-			JobDetail jobDetail = JobBuilder.newJob(clazz).withIdentity(job.getJobName(), job.getJobGroup()).build();
+			sched.scheduleJob(jobDetail, trigger);
 
-			jobDetail.getJobDataMap().put("scheduleJob", job);
-
-			CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());
-
-			trigger = TriggerBuilder.newTrigger().withIdentity(job.getJobName(), job.getJobGroup()).withSchedule(scheduleBuilder).build();
-
-			scheduler.scheduleJob(jobDetail, trigger);
-		} else {
-			// Trigger已存在，那么更新相应的定时设置
-			CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());
-
-			// 按新的cronExpression表达式重新构建trigger
-			trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
-
-			// 按新的trigger重新设置job执行
-			scheduler.rescheduleJob(triggerKey, trigger);
+			if (!sched.isShutdown()) {
+				sched.start();// 启动
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
+
 
 	@PostConstruct
 	public void init() throws Exception {
 
-		Scheduler scheduler = schedulerFactoryBean.getScheduler();
-
-		// 这里获取任务信息数据
-		List<ScheduleJob> jobList = getAllJob();
-	
-		for (ScheduleJob job : jobList) {
-			addJob(job);
+		Scheduler scheduler = gSchedulerFactory.getScheduler();
+		GroupMatcher<JobKey> matcher = GroupMatcher.anyJobGroup();
+		Set<JobKey> jobKeys = scheduler.getJobKeys(matcher);
+		
+		for (JobKey jobKey : jobKeys) {
+			List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
+			for (Trigger trigger : triggers) {
+			
+				if (trigger instanceof CronTrigger) {
+					CronTrigger cronTrigger = (CronTrigger) trigger;
+					//一定要先启动scheduler，不然无法触发
+					scheduler.start();
+					scheduler.rescheduleJob(cronTrigger.getKey(), cronTrigger);
+				}
+				
+			}
 		}
+	
 	}
 
 	/**
@@ -96,29 +107,48 @@ public class TaskManager {
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public List<ScheduleJob> getAllJob() throws SchedulerException {
-		Scheduler scheduler = gSchedulerFactory.getScheduler();
-		GroupMatcher<JobKey> matcher = GroupMatcher.anyJobGroup();
-		Set<JobKey> jobKeys = scheduler.getJobKeys(matcher);
+	public List<ScheduleJob> getAllJob(String jobName) throws SchedulerException {
 		List<ScheduleJob> jobList = new ArrayList<ScheduleJob>();
-		for (JobKey jobKey : jobKeys) {
-			List<? extends Trigger> triggers = scheduler.getTriggersOfJob(jobKey);
-			for (Trigger trigger : triggers) {
-				ScheduleJob job = new ScheduleJob();
-				job.setJobName(jobKey.getName());
-				job.setJobGroup(jobKey.getGroup());
-				job.setDescription(trigger.getKey().toString());
-				Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());
-				job.setJobStatus(triggerState.name());
-				if (trigger instanceof CronTrigger) {
-					CronTrigger cronTrigger = (CronTrigger) trigger;
-					String cronExpression = cronTrigger.getCronExpression();
-					job.setCronExpression(cronExpression);
+		List<ScheduleJob> jobSingleList = new ArrayList<ScheduleJob>();
+
+		try {
+			Scheduler sched = schedulerFactoryBean.getScheduler();
+			GroupMatcher<JobKey> matcher = GroupMatcher.anyJobGroup();
+			Set<JobKey> jobkeys = sched.getJobKeys(matcher);
+			for (JobKey jobkey : jobkeys) {
+				List<? extends Trigger> triggers = sched.getTriggersOfJob(jobkey);
+				for (Trigger tri : triggers) {
+					ScheduleJob job = new ScheduleJob();
+
+					job.setJobName(jobkey.getName());
+
+					job.setJobGroup(jobkey.getGroup());
+					job.setDescription("触发：" + tri.getKey());
+					Trigger.TriggerState status = sched.getTriggerState(tri.getKey());
+					job.setJobStatus(status.name());
+					if (tri instanceof CronTrigger) {
+						CronTrigger ctri = (CronTrigger) tri;
+						String cronExpress = ctri.getCronExpression();
+						job.setCronExpression(cronExpress);
+					}
+					if (job.getJobName().equals(jobName)) {
+						jobSingleList.add(job);
+					}
+					jobList.add(job);
 				}
-				jobList.add(job);
+
 			}
+		} catch (SchedulerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return jobList;
+
+		if (StringUtils.isEmpty(jobName)) {
+			return jobList;
+		} else {
+			return jobSingleList;
+		}
+
 	}
 
 	/**
@@ -218,5 +248,24 @@ public class TaskManager {
 		trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
 
 		scheduler.rescheduleJob(triggerKey, trigger);
+	}
+
+	public void StartTask(ScheduleJob job) {
+		try {
+			Scheduler scheduler = gSchedulerFactory.getScheduler();
+			// Trigger已存在，那么更新相应的定时设置
+			CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(job.getCronExpression());
+			
+			TriggerKey triggerKey = TriggerKey.triggerKey(job.getJobName(), job.getJobGroup());
+			// 按新的cronExpression表达式重新构建trigger
+			CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+			trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
+
+			// 按新的trigger重新设置job执行
+			scheduler.rescheduleJob(triggerKey, trigger);
+		} catch (SchedulerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
