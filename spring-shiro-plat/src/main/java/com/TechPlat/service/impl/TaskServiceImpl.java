@@ -91,4 +91,32 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 		
 	}
 
+	@Override
+	public boolean deleteTask(ScheduleJob job) {
+		boolean flag = false;
+		
+		try{
+			taskManger.deleteJob(job);
+			flag = true;
+		}catch(Exception e){
+			flag = false;
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
+	@Override
+	public boolean startTask(ScheduleJob job) {
+		boolean flag = false;
+		
+		try{
+			taskManger.runAJobNow(job);
+			flag = true;
+		}catch(Exception e){
+			flag = false;
+			e.printStackTrace();
+		}
+		return flag;
+	}
+
 }

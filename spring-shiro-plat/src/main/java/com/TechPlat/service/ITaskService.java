@@ -20,4 +20,8 @@ public interface ITaskService extends IService<Task> {
 	void selectDataGrid(PageInfo pageInfo);
 	
 	boolean addTask(ScheduleJob job);
+	
+	boolean deleteTask(ScheduleJob job);
+	
+	boolean startTask(ScheduleJob job);
 }

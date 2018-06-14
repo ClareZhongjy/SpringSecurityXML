@@ -89,16 +89,34 @@ public class TaskController extends BaseController {
      */
     @PostMapping("/delete")
     @ResponseBody
-    public Object delete(Long id) {
-        Task task = new Task();
-        task.setId(id);
+    public Object delete(String jobName,String jobGroup) {
+        
+    	ScheduleJob sjob = new ScheduleJob();
+    	sjob.setJobGroup(jobGroup);
+    	sjob.setJobName(jobName);
       
-        boolean b = taskService.updateById(task);
+        boolean b = taskService.deleteTask(sjob);
         if (b) {
             return renderSuccess("删除成功！");
         } else {
             return renderError("删除失败！");
         }
+    }
+    
+    @PostMapping("/start")
+    @ResponseBody
+    public Object start(String jobName,String jobGroup){
+    	ScheduleJob sjob = new ScheduleJob();
+    	sjob.setJobGroup(jobGroup);
+    	sjob.setJobName(jobName);
+    	boolean b = taskService.startTask(sjob);
+    	if(b){
+    		return renderSuccess("启动成功！");
+    	}else{
+    		return renderError("启动失败！");
+    	}
+		
+    	
     }
     
     /**

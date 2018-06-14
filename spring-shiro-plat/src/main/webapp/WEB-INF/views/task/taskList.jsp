@@ -15,27 +15,27 @@
         pageSize : 20,
         pageList : [ 10, 20, 30, 40, 50, 100, 200, 300, 400, 500],
         frozenColumns : [ [ {
-            width : '60',
+            width : '100',
             title : 'job名称',
             field : 'jobName',
             sortable : true
         }, {
-            width : '80',
+            width : '100',
             title : '任务分组',
             field : 'jobGroup',
             sortable : true
         },{
-            width : '80',
+            width : '100',
             title : '任务状态',
             field : 'jobStatus',
             sortable : true
         }, {
-            width : '80',
+            width : '150',
             title : '任务运行时间表达式',
             field : 'cronExpression',
             sortable : true
         }, {
-            width : '80',
+            width : '150',
             title : '任务描述',
             field : 'description',
             sortable : true
@@ -51,11 +51,11 @@
                 </shiro:hasPermission>
                 <shiro:hasPermission name="/task/delete">
                     str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="taskDeleteFun(\'{0}\');" >删除</a>', row.id);
+                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="taskDeleteFun(\'{0}\',\'{1}\');" >删除</a>', row.jobName,row.jobGroup);
                 </shiro:hasPermission>
                 <shiro:hasPermission name="/task/start">
                 str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-start" data-options="plain:true,iconCls:\'glyphicon-random icon-blue\'" onclick="taskStart(\'{0}\');" >手动执行</a>', row.id);
+                str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-start" data-options="plain:true,iconCls:\'glyphicon-random icon-blue\'" onclick="taskStart(\'{0}\',\'{1}\');" >手动执行</a>', row.jobName,row.jobGroup);
             	</shiro:hasPermission>
                 return str;
             }
@@ -121,18 +121,21 @@ function taskEditFun(id) {
 /**
  * 删除
  */
- function taskDeleteFun(id) {
-     if (id == undefined) {//点击右键菜单才会触发这个
+ function taskDeleteFun(jobName,jobGroup) {
+     if (jobName == undefined) {//点击右键菜单才会触发这个
          var rows = taskDataGrid.datagrid('getSelections');
-         id = rows[0].id;
+         jobName = rows[0].jobName;
+         jobGroup = rows[0].jobGroup;
      } else {//点击操作里面的删除图标会触发这个
          taskDataGrid.datagrid('unselectAll').datagrid('uncheckAll');
      }
-     parent.$.messager.confirm('询问', '您是否要删除当前角色？', function(b) {
+     parent.$.messager.confirm('询问', '您是否要删除当前定时任务？', function(b) {
          if (b) {
              progressLoad();
              $.post('${path}/task/delete', {
-                 id : id
+            	 jobName : jobName,
+            	 jobGroup:jobGroup
+         
              }, function(result) {
                  if (result.success) {
                      parent.$.messager.alert('提示', result.msg, 'info');
@@ -143,7 +146,29 @@ function taskEditFun(id) {
          }
      });
 }
-
+function taskStart(jobName,jobGroup){
+	if (jobName == undefined) {//点击右键菜单才会触发这个
+        var rows = taskDataGrid.datagrid('getSelections');
+        jobName = rows[0].jobName;
+    } else {//点击操作里面的删除图标会触发这个
+        taskDataGrid.datagrid('unselectAll').datagrid('uncheckAll');
+    }
+	parent.$.messager.confirm("询问", "是否手动触发该定时任务？", function(b){
+		if(b){
+			progressLoad();
+			$.post('${path}/task/start',{jobName:jobName,jobGroup:jobGroup},
+					function(result){
+						if(result.success){
+						parent.$.messager.alert('提示',result.msg,'info');
+						taskDataGrid.datagrid('reload');
+						}
+						progressClose();
+					},
+					'JSON'
+			);
+		}
+	});
+}
 
 /**
  * 清除
