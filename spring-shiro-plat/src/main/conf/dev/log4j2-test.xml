@@ -14,6 +14,7 @@
         <logger name="java.sql.PreparedStatement" level="DEBUG"/>
         
         <!-- 减少部分debug日志 -->
+        <logger name="org.quartz" level="INFO"/>
         <logger name="druid.sql" level="INFO"/>
         <logger name="org.apache.shiro" level="INFO"/>
         <logger name="org.mybatis.spring" level="INFO"/>
