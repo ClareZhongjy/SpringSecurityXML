@@ -119,4 +119,16 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 		return flag;
 	}
 
+	@Override
+	public boolean editTask(ScheduleJob job) {
+		try {
+			taskManger.updateJobCron(job);
+			return true;
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
+
 }

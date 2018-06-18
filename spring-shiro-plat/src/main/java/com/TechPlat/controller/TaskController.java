@@ -126,10 +126,18 @@ public class TaskController extends BaseController {
      * @return
      */
     @GetMapping("/editPage")
-    public String editPage(Model model, Long id) {
-        Task task = taskService.selectById(id);
-        model.addAttribute("task", task);
-        return "admin/task/taskEdit";
+    public String editPage(Model model, String jobName,String jobGroup) {
+    	PageInfo pageInfo = new PageInfo(1, 1, "", "desc");
+        Map<String, Object> condition = new HashMap<String, Object>();
+        condition.put("jobName", jobName);
+        condition.put("jobGroup", jobGroup);
+        
+        pageInfo.setCondition(condition);
+        taskService.selectDataGrid(pageInfo);
+        ScheduleJob job = new ScheduleJob();
+        job = (ScheduleJob) pageInfo.getRows().get(0);
+        model.addAttribute("job", job);
+        return "/task/taskEdit";
     }
     
     /**
@@ -139,9 +147,9 @@ public class TaskController extends BaseController {
      */
     @PostMapping("/edit")
     @ResponseBody
-    public Object edit(@Valid Task task) {
+    public Object edit(@Valid ScheduleJob task) {
         
-        boolean b = taskService.updateById(task);
+        boolean b = taskService.editTask(task);
         if (b) {
             return renderSuccess("编辑成功！");
         } else {

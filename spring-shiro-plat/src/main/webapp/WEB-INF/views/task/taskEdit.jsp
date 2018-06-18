@@ -35,16 +35,25 @@
             <table class="grid">
                 <tr>
                     <td>定时任务名称</td>
-                    <td><input name="id" type="hidden"  value="${task.id}">
-                    <input name="name" type="text" placeholder="请输入名称" class="easyui-validatebox" data-options="required:true" value="${task.name}"></td>
+                    <td><input name="id" type="hidden"  value="${job.jobName}">
+                    <input name="jobName" type="text"  class="easyui-validatebox" readonly="readonly" value="${job.jobName}"></td>
                 </tr>
                 <tr>
-                    <td>状态</td>
+                    <td>定时任务分组</td>
                     <td >
-                        <select id="editStatus" name="status" class="easyui-combobox" data-options="width:140,height:29,editable:false,panelHeight:'auto'">
-                            <option value="0">正常</option>
-                            <option value="1">停用</option>
-                        </select>
+                        <input name="jobGroup" type="text" class="easyui-validatebox" readonly="readonly" value="${job.jobGroup}"></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>定时任务Cron</td>
+                    <td >
+                        <input name="cronExpression" type="text" class="easyui-validatebox" data-options="required:true" value="${job.cronExpression}"></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td>定时任务Class</td>
+                    <td >
+                        <input name="beanClass" type="text" class="easyui-validatebox" data-options="required:true" value="${job.beanClass}"></td>
                     </td>
                 </tr>
             </table>

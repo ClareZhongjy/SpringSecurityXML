@@ -24,4 +24,6 @@ public interface ITaskService extends IService<Task> {
 	boolean deleteTask(ScheduleJob job);
 	
 	boolean startTask(ScheduleJob job);
+	
+	boolean editTask(ScheduleJob job);
 }

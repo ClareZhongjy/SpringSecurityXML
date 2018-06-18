@@ -47,7 +47,7 @@
             	
                 var str = '';
                 <shiro:hasPermission name="/task/edit">
-                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-ok icon-green\'" onclick="taskEditFun(\'{0}\');" >编辑</a>', row.id);
+                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-ok icon-green\'" onclick="taskEditFun(\'{0}\',\'{1}\');" >编辑</a>', row.jobName,row.jobGroup);
                 </shiro:hasPermission>
                 <shiro:hasPermission name="/task/delete">
                     str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
@@ -94,10 +94,11 @@ function taskAddFun() {
 /**
  * 编辑
  */
-function taskEditFun(id) {
-    if (id == undefined) {
+function taskEditFun(jobName,jobGroup) {
+    if (jobName == undefined) {
         var rows = taskDataGrid.datagrid('getSelections');
-        id = rows[0].id;
+        jobName = rows[0].jobName;
+        jobGroup = rows[0].jobGroup;
     } else {
         taskDataGrid.datagrid('unselectAll').datagrid('uncheckAll');
     }
@@ -105,7 +106,7 @@ function taskEditFun(id) {
         title : '编辑',
         width : 700,
         height : 600,
-        href :  '${path}/task/editPage?id=' + id,
+        href :  '${path}/task/editPage?jobName=' + jobName+'&jobGroup='+jobGroup,
         buttons : [ {
             text : '确定',
             handler : function() {
