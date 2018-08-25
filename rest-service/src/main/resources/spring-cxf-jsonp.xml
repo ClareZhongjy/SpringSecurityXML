@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://cxf.apache.org/jaxrs
+       http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
+
+    <bean id="jsonpInInterceptor" class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor"/>
+
+    <bean id="jsonpPreStreamInterceptor" class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor"/>
+
+    <bean id="jsonpPostStreamInterceptor" class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor"/>
+
+    <jaxrs:server address="/rest">
+        <jaxrs:serviceBeans>
+            <ref bean="helloServiceImpl"/>
+            <ref bean="productServiceImpl"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <ref bean="jsonProvider"/>
+            <ref bean="jsonpPreStreamInterceptor"/>
+        </jaxrs:providers>
+        <jaxrs:inInterceptors>
+            <ref bean="jsonpInInterceptor"/>
+        </jaxrs:inInterceptors>
+        <jaxrs:outInterceptors>
+            <ref bean="jsonpPostStreamInterceptor"/>
+        </jaxrs:outInterceptors>
+    </jaxrs:server>
+
+</beans>
