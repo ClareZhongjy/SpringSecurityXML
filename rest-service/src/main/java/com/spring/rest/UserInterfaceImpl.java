@@ -9,7 +9,7 @@ public class UserInterfaceImpl implements UserInterface{
 
 	public User queryUserByName(String userName) {
 		User user = new User();
-		user.setName("ÍõºÆ");
+		user.setName("ç‹æµ©");
 		return user;
 	}
 

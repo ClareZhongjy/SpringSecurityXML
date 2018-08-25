@@ -7,7 +7,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rest-service Maven Webapp</name>
 	<url>http://maven.apache.org</url>
-
+ 
 	<properties>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +19,7 @@
 		<spring.version>4.0.6.RELEASE</spring.version>
 	</properties>
 
-
+ 
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
