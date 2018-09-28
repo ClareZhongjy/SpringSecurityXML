@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/rabbit
+     http://www.springframework.org/schema/rabbit/spring-rabbit-1.3.xsd">
+
+	<rabbit:connection-factory id="mqConnectionFactory"
+		host="localhost" username="guest" password="guest" port="5672"
+		virtual-host="/" />
+
+	<rabbit:admin connection-factory="mqConnectionFactory" />
+
+	<rabbit:template id="amqTemplate" exchange="exchangePortal"
+		connection-factory="mqConnectionFactory"></rabbit:template>
+	<!-- 定义交换中心用来发送消息 -->
+	<rabbit:direct-exchange name="exchangePortal"
+		durable="true" auto-delete="false">
+		<rabbit:bindings>
+			<rabbit:binding queue="StartQueue" key="StartQueueKey"></rabbit:binding>
+			<rabbit:binding queue="EndQueue" key="EndQueueKey"></rabbit:binding>
+		</rabbit:bindings>
+
+
+	</rabbit:direct-exchange>
+
+	<!-- 消息队列接收处理类 -->
+	<bean id="startListener" class="spring_mq.consumer.StartListener"></bean>
+
+	<bean id="endListener" class="spring_mq.consumer.EndListener"></bean>
+	<!-- 监听消息队列，如果有消息即推送 -->
+	<rabbit:listener-container>
+		<rabbit:listener queues="StartQueue" ref="startListener"/>
+		<rabbit:listener queues="EndQueue" ref="endListener"/>
+	</rabbit:listener-container>
+	</beans>
