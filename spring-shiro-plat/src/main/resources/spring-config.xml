@@ -34,4 +34,5 @@
     <import resource="classpath:spring/spring-task.xml"/>
     <import resource="classpath:spring/spring-shiro.xml"/>
      <import resource="classpath:spring-quartz.xml"/>
+    <import resource="classpath:spring/spring-activiti.xml"/>
 </beans>
