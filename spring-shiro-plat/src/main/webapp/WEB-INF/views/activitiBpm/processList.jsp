@@ -66,27 +66,45 @@
                 return str;
             }
         } ] ],
+        toolbar : '#bpmToolbar',
         onLoadSuccess:function(data){
             $('.task-easyui-linkbutton-edit').linkbutton({text:'编辑'});
             $('.task-easyui-linkbutton-del').linkbutton({text:'删除'});
             $('.task-easyui-linkbutton-start').linkbutton({text:'手动执行'});
-        },
-        toolbar : '#taskToolbar'
+        }
+        
     });
 });
-    </script>
+    
+ function  bpmFileAdd(){
+	    parent.$.modalDialog({
+	        title : '添加流程',
+	        width : 300,
+	        height : 200,
+	        href : '${path}/bpm/preUploadBpmFile',
+	        buttons : [ {
+	            text : '确定',
+	            handler : function() {
+	                parent.$.modalDialog.openner_dataGrid = bpmDataGrid;//因为添加成功之后，需要刷新这个treeGrid，所以先预定义好
+	                var f = parent.$.modalDialog.handler.find('#uploadBpmForm');
+	                f.submit();
+	            }
+	        } ]
+	    });
+ }
+ </script>
     
     
 <div class="easyui-layout" data-options="fit:true,border:false">
     <div data-options="region:'north',border:false" style="height: 30px; overflow: hidden;background-color: #fff">
-        <form id="taskSearchForm">
+        <form id="bpmSearchForm">
             <table>
                 <tr>
-                    <th>名称:</th>
+                    <th>名称1:</th>
                     <td><input name="taskName" placeholder="搜索条件"/></td>
                     <td>
-                        <a href="javascript:void(0);"class="easyui-linkbutton" data-options="iconCls:'glyphicon-search',plain:true"onclick="taskSearchFun();">查询</a>
-                        <a href="javascript:void(0);"  class="easyui-linkbutton" data-options="iconCls:'glyphicon-remove-circle',plain:true"  onclick="taskCleanFun();">清空</a>
+                        <a href="javascript:void(0);"class="easyui-linkbutton" data-options="iconCls:'glyphicon-search',plain:true" >查询</a>
+                        <a href="javascript:void(0);"  class="easyui-linkbutton" data-options="iconCls:'glyphicon-remove-circle',plain:true" >清空</a>
                     </td>
                 </tr>
             </table>
@@ -97,8 +115,8 @@
         <table id="bpmDataGrid" data-options="fit:true,border:false"></table>
     </div>
 </div>
-<div id="taskToolbar" style="display: none;">
-    <shiro:hasPermission name="/task/add">
-        <a onclick="taskAddFun();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fi-page-add'">添加</a>
+<div id="bpmToolbar" style="display: none;">
+    <shiro:hasPermission name="/bpm/preUploadBpmFile">
+        <a onclick="bpmFileAdd();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fi-page-add'">添加流程</a>
     </shiro:hasPermission>
 </div

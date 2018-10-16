@@ -1,7 +1,14 @@
 package com.TechPlat.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.TechPlat.model.Process;
 import org.activiti.engine.FormService;
 import org.activiti.engine.IdentityService;
@@ -13,7 +20,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.TechPlat.commons.base.BaseController;
 import com.TechPlat.commons.result.PageInfo;
@@ -56,6 +66,29 @@ public class BpmController extends BaseController {
 		}
 		pageInfo.setRows(bpmDisplayList);
 		return pageInfo;
+	}
+	
+	@GetMapping("/preUploadBpmFile")
+	public String preUploadBpmFile(){
+		return "activitiBpm/UploadBpmFile";
+		
+	}
+	@RequestMapping("/uploadBpmFileByMultipart")
+	@ResponseBody
+	public Object uploadBpmFileByMultipart(@RequestParam MultipartFile bpmFile,HttpServletRequest request) throws IOException{
+		long startTime = System.currentTimeMillis();
+		String filename = bpmFile.getOriginalFilename();
+		//String prefix =  request.getSession().getServletContext().getRealPath("FileDir");
+		//File savedFile = new File(prefix,filename);
+		//bpmFile.transferTo(savedFile);
+		
+		//InputStream is = new FileInputStream(savedFile);
+		rep.createDeployment().addInputStream(filename, bpmFile.getInputStream()).deploy();
+		long endTime = System.currentTimeMillis();
+		String times = String.valueOf((endTime-startTime)/1000.00)+"s";
+		return renderSuccess("上传成功，耗时"+times);
+		
+		
 	}
 	
 }
