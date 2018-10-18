@@ -23,7 +23,7 @@
                 progressClose();
             }
             if(!checkBpmFile()){
-        		alert("请上传bpmn文件！");
+            	 $.messager.alert('提示', '请上传bpmn文件！','error');
         		isValid = false;
         		progressClose();
         	}

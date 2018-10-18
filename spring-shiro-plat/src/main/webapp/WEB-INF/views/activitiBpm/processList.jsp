@@ -52,25 +52,25 @@
             formatter : function(value, row, index) {
             	
                 var str = '';
-                <shiro:hasPermission name="/task/edit">
-                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-ok icon-green\'" onclick="taskEditFun(\'{0}\',\'{1}\');" >编辑</a>');
+                <shiro:hasPermission name="/bpm/editProcess">
+                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-ok icon-green\'" onclick="bpmEditFun(\'{0}\',\'{1}\');" >编辑</a>');
                 </shiro:hasPermission>
-                <shiro:hasPermission name="/task/delete">
+                <shiro:hasPermission name="/bpm/deleteProcess">
                     str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                    str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="taskDeleteFun(\'{0}\',\'{1}\');" >删除</a>');
+                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="bpmDeleteFun(\'{0}\',\'{1}\');" >删除</a>');
                 </shiro:hasPermission>
-                <shiro:hasPermission name="/task/start">
+                <shiro:hasPermission name="/bpm/start">
                 str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                str += $.formatString('<a href="javascript:void(0)" class="task-easyui-linkbutton-start" data-options="plain:true,iconCls:\'glyphicon-random icon-blue\'" onclick="taskStart(\'{0}\',\'{1}\');" >手动执行</a>');
+                str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-start" data-options="plain:true,iconCls:\'glyphicon-random icon-blue\'" onclick="bpmStart(\'{0}\',\'{1}\');" >手动执行</a>');
             	</shiro:hasPermission>
                 return str;
             }
         } ] ],
         toolbar : '#bpmToolbar',
         onLoadSuccess:function(data){
-            $('.task-easyui-linkbutton-edit').linkbutton({text:'编辑'});
-            $('.task-easyui-linkbutton-del').linkbutton({text:'删除'});
-            $('.task-easyui-linkbutton-start').linkbutton({text:'手动执行'});
+            $('.bpm-easyui-linkbutton-edit').linkbutton({text:'编辑'});
+            $('.bpm-easyui-linkbutton-del').linkbutton({text:'删除'});
+            $('.bpm-easyui-linkbutton-start').linkbutton({text:'手动执行'});
         }
         
     });
@@ -79,8 +79,8 @@
  function  bpmFileAdd(){
 	    parent.$.modalDialog({
 	        title : '添加流程',
-	        width : 300,
-	        height : 200,
+	        width : 400,
+	        height : 600,
 	        href : '${path}/bpm/preUploadBpmFile',
 	        buttons : [ {
 	            text : '确定',
@@ -92,6 +92,10 @@
 	        } ]
 	    });
  }
+ 
+ function bpmDeleteFun(){
+	 
+ }
  </script>
     
     
@@ -101,7 +105,7 @@
             <table>
                 <tr>
                     <th>名称1:</th>
-                    <td><input name="taskName" placeholder="搜索条件"/></td>
+                    <td><input name="processName" placeholder="流程名"/></td>
                     <td>
                         <a href="javascript:void(0);"class="easyui-linkbutton" data-options="iconCls:'glyphicon-search',plain:true" >查询</a>
                         <a href="javascript:void(0);"  class="easyui-linkbutton" data-options="iconCls:'glyphicon-remove-circle',plain:true" >清空</a>

@@ -90,5 +90,17 @@ public class BpmController extends BaseController {
 		
 		
 	}
+	/**
+	 * 删除流程
+	 * @param processId
+	 * @return
+	 */
+	@RequestMapping("/deleteProcess")
+	@ResponseBody
+	public Object deleteProcess(String processId){
+		rep.deleteDeployment(processId,true);
+		return renderSuccess("删除成功！");
+		
+	}
 	
 }
