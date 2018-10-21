@@ -57,7 +57,7 @@ public class BpmController extends BaseController {
 		for(ProcessDefinition pd:bpmList){
 			Process p = new Process();
 			p.setDeploymentId(pd.getDeploymentId());
-			p.setId(pd.getId());
+			p.setProcessId(pd.getId());
 			p.setKey(pd.getKey());
 			p.setName(pd.getName());
 			p.setResourceName(pd.getResourceName());
@@ -98,8 +98,12 @@ public class BpmController extends BaseController {
 	@RequestMapping("/deleteProcess")
 	@ResponseBody
 	public Object deleteProcess(String processId){
-		rep.deleteDeployment(processId,true);
-		return renderSuccess("删除成功！");
+		try{
+			rep.deleteDeployment(processId,true);
+			return renderSuccess("删除成功！");
+		}catch(Exception e){
+			return renderError("删除失败"+e);
+		}
 		
 	}
 	

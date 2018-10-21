@@ -123,6 +123,7 @@ function taskEditFun(jobName,jobGroup) {
  * 删除
  */
  function taskDeleteFun(jobName,jobGroup) {
+	debugger;
      if (jobName == undefined) {//点击右键菜单才会触发这个
          var rows = taskDataGrid.datagrid('getSelections');
          jobName = rows[0].jobName;

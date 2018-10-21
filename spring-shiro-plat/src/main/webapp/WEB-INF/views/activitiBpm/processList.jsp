@@ -21,8 +21,8 @@
             sortable : true
         }, {
             width : '100',
-            title : 'id',
-            field : 'id',
+            title : 'processId',
+            field : 'processId',
             sortable : true
         },{
             width : '100',
@@ -52,25 +52,17 @@
             formatter : function(value, row, index) {
             	
                 var str = '';
-                <shiro:hasPermission name="/bpm/editProcess">
-                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-edit" data-options="plain:true,iconCls:\'glyphicon-ok icon-green\'" onclick="bpmEditFun(\'{0}\',\'{1}\');" >编辑</a>');
-                </shiro:hasPermission>
                 <shiro:hasPermission name="/bpm/deleteProcess">
                     str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="bpmDeleteFun(\'{0}\',\'{1}\');" >删除</a>');
+                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="bpmDeleteFun(\'{1}\');" >删除</a>');
                 </shiro:hasPermission>
-                <shiro:hasPermission name="/bpm/start">
-                str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-start" data-options="plain:true,iconCls:\'glyphicon-random icon-blue\'" onclick="bpmStart(\'{0}\',\'{1}\');" >手动执行</a>');
-            	</shiro:hasPermission>
+
                 return str;
             }
         } ] ],
         toolbar : '#bpmToolbar',
         onLoadSuccess:function(data){
-            $('.bpm-easyui-linkbutton-edit').linkbutton({text:'编辑'});
             $('.bpm-easyui-linkbutton-del').linkbutton({text:'删除'});
-            $('.bpm-easyui-linkbutton-start').linkbutton({text:'手动执行'});
         }
         
     });
@@ -93,8 +85,35 @@
 	    });
  }
  
- function bpmDeleteFun(){
-	 
+ function bpmDeleteFun(id){
+	 debugger;
+	 if (id == undefined) {//点击右键菜单才会触发这个
+         var rows = bpmDataGrid.datagrid('getSelections');
+         id = rows[1].jobName;
+         
+     } else {//点击操作里面的删除图标会触发这个
+         bpmDataGrid.datagrid('unselectAll').datagrid('uncheckAll');
+     }
+	$.messager.confirm('询问','请问是否确定删除该流程？',function(r){
+		if(r){
+			progressLoad();
+			$.post(
+					'${path}/bpm/deleteProcess',
+					{processId: id},
+					function(result){
+						if(result.success){
+							 parent.$.messager.alert('提示', result.msg, 'info');
+		                     bpmDataGrid.datagrid('reload');
+						}else{
+							parent.$.messager.alert('提示', result.msg, 'error');
+		                     bpmDataGrid.datagrid('reload');
+						}
+						progressClose();
+					},
+					'JSON'
+			);
+		}	
+	}) 
  }
  </script>
     
@@ -121,6 +140,6 @@
 </div>
 <div id="bpmToolbar" style="display: none;">
     <shiro:hasPermission name="/bpm/preUploadBpmFile">
-        <a onclick="bpmFileAdd();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'fi-page-add'">添加流程</a>
+        <a onclick="bpmFileAdd();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'glyphicon-plus icon-green'">添加流程</a>
     </shiro:hasPermission>
 </div

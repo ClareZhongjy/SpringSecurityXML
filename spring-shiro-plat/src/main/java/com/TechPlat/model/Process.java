@@ -1,17 +1,17 @@
 package com.TechPlat.model;
 
 public class Process {
-	String id;
+	String processId;
 	String deploymentId;
 	String name;
 	String resourceName;
 	String key;
 	String diagramresourcename;
-	public String getId() {
-		return id;
+	public String getProcessId() {
+		return processId;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setProcessId(String processId) {
+		this.processId = processId;
 	}
 	public String getDeploymentId() {
 		return deploymentId;
@@ -35,7 +35,7 @@ public class Process {
 		return key;
 	}
 	public void setKey(String key) {
-		this.key = key;
+		this.key = key; 
 	}
 	public String getDiagramresourcename() {
 		return diagramresourcename;
