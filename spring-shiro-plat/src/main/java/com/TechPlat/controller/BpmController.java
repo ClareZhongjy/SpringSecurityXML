@@ -5,16 +5,21 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.TechPlat.model.LeaveApply;
 import com.TechPlat.model.Process;
+
 import org.activiti.engine.FormService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.repository.ProcessDefinition;
+import org.activiti.engine.runtime.ProcessInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +32,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.TechPlat.commons.base.BaseController;
 import com.TechPlat.commons.result.PageInfo;
+import com.TechPlat.commons.shiro.ShiroUser;
 
 @Controller
 @RequestMapping("/bpm")
@@ -106,5 +112,25 @@ public class BpmController extends BaseController {
 		}
 		
 	}
+	@GetMapping("/ApplyTaskList")
+	public String getApplyTaskList(){
+		return "activitiBpm/ApplyTaskList";
+	}
 	
+	@RequestMapping("preStartLeaveApply")
+	public String preStartLeaveApply(){
+		return "activitiBpm/LeaveApply";
+		
+	}
+	
+	@RequestMapping("startLeaveApply")
+	@ResponseBody
+	public Object startLeaveApply(LeaveApply apply){
+		ShiroUser shiroUser = getShiroUser();
+		Map<String,Object> variables = new HashMap<String,Object>();
+		variables.put("applyuserid", shiroUser.getId());
+		ProcessInstance ins = 
+		return formservice;
+		
+	}
 }

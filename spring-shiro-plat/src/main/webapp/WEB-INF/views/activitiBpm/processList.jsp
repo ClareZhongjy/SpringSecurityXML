@@ -53,9 +53,9 @@
             	
                 var str = '';
                 <shiro:hasPermission name="/bpm/deleteProcess">
-                    str += '&nbsp;&nbsp;|&nbsp;&nbsp;';
-                    str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="bpmDeleteFun(\'{1}\');" >删除</a>');
-                </shiro:hasPermission>
+                str += $.formatString('<a href="javascript:void(0)" class="bpm-easyui-linkbutton-del" data-options="plain:true,iconCls:\'glyphicon-trash icon-red\'" onclick="bpmDeleteFun(\'{0}\');" >删除</a>', row.deploymentId);
+            	</shiro:hasPermission>
+               
 
                 return str;
             }
@@ -119,20 +119,7 @@
     
     
 <div class="easyui-layout" data-options="fit:true,border:false">
-    <div data-options="region:'north',border:false" style="height: 30px; overflow: hidden;background-color: #fff">
-        <form id="bpmSearchForm">
-            <table>
-                <tr>
-                    <th>名称1:</th>
-                    <td><input name="processName" placeholder="流程名"/></td>
-                    <td>
-                        <a href="javascript:void(0);"class="easyui-linkbutton" data-options="iconCls:'glyphicon-search',plain:true" >查询</a>
-                        <a href="javascript:void(0);"  class="easyui-linkbutton" data-options="iconCls:'glyphicon-remove-circle',plain:true" >清空</a>
-                    </td>
-                </tr>
-            </table>
-        </form>
-     </div>
+    
  
     <div data-options="region:'center',border:false">
         <table id="bpmDataGrid" data-options="fit:true,border:false"></table>
@@ -142,4 +129,4 @@
     <shiro:hasPermission name="/bpm/preUploadBpmFile">
         <a onclick="bpmFileAdd();" href="javascript:void(0);" class="easyui-linkbutton" data-options="plain:true,iconCls:'glyphicon-plus icon-green'">添加流程</a>
     </shiro:hasPermission>
-</div
+</div>
