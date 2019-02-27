@@ -1,38 +1,24 @@
 package com.clare.redislock;
 
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import io.lettuce.core.SetArgs;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.connection.DefaultedRedisConnection;
-import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCluster;
 
 import java.util.Collections;
 import java.util.List;
 
-/**
- * @author liuxu
- * @ProjectName ems-payment-service
- * @PackageName cn.com.crc.redis
- * @ClassName RedisAtomicClient
- * @date 2018/10/22 15:06
- * @since JDK 1.8
- */
-public class RedisAtomicClient {
 
-  private static final Logger logger = LoggerFactory.getLogger(RedisAtomicClient.class);
+public class RedisSelfNxImplClient {
+
+  private static final Logger logger = LoggerFactory.getLogger(RedisSelfNxImplClient.class);
 
   private static final String CONSTR_KEY="_REV_REDIS_LOCK";
 
@@ -48,14 +34,14 @@ public class RedisAtomicClient {
   private static final String COMPARE_AND_DELETE = "if redis.call('get',KEYS[1]) == ARGV[1]\n then\n     return redis.call('del',KEYS[1])\n else\n     return 0\n end";
 
 
-  public RedisAtomicClient(RedisTemplate redisTemplate) {
+  public RedisSelfNxImplClient(RedisTemplate redisTemplate) {
     this.redisTemplate = redisTemplate;
     this.stringRedisTemplate = new StringRedisTemplate();
     this.stringRedisTemplate.setConnectionFactory(redisTemplate.getConnectionFactory());
     this.stringRedisTemplate.afterPropertiesSet();
   }
 
-  public RedisAtomicClient(RedisTemplate redisTemplate, StringRedisTemplate stringRedisTemplate) {
+  public RedisSelfNxImplClient(RedisTemplate redisTemplate, StringRedisTemplate stringRedisTemplate) {
     this.redisTemplate = redisTemplate;
     this.stringRedisTemplate =stringRedisTemplate;
   }
@@ -110,12 +96,7 @@ public class RedisAtomicClient {
       System.out.println("==========key==="+setKey.getBytes());
       System.out.println("==========value==="+value.getBytes());
 
-          /*  Boolean flag = stringRedisTemplate.getConnectionFactory().getConnection().setNX(setKey.getBytes(),value.getBytes());
-            stringRedisTemplate.expire(setKey,expireSeconds, TimeUnit.SECONDS);
-            String status = null;
-            if(flag) {
-                status = "OK";
-            }*/
+
       String status = stringRedisTemplate.execute(new RedisCallback<String>() {
         @Override
         public String doInRedis(RedisConnection connection) throws DataAccessException {
@@ -124,22 +105,26 @@ public class RedisAtomicClient {
           RedisSerializer<String> stringRedisSerializer = (RedisSerializer<String>) stringRedisTemplate.getKeySerializer();
 
           byte[] keyByte = stringRedisSerializer.serialize(key);
+          //springboot 2.0以上的spring-data-redis 包默认使用 lettuce连接包
+
+          //ettuce连接包，集群模式
           if (nativeConnection instanceof RedisAdvancedClusterAsyncCommands) {
-            logger.debug("JedisCluster1:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
-            status = ((RedisClusterConnection) nativeConnection).set(setKey, value, "NX", "EX", expireSeconds);
-            logger.debug("JedisCluster:---status:"+status);
+            logger.debug("lettuce Cluster:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
+            status = ((RedisAdvancedClusterAsyncCommands) nativeConnection).getStatefulConnection().sync().set(keyByte,keyByte,SetArgs.Builder.nx().ex(30));
+            logger.debug("lettuce Cluster:---status:"+status);
           }
+          //lettuce连接包，单机模式
           if (nativeConnection instanceof RedisAsyncCommands) {
-            logger.debug("Jedis1:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
-            status = ((RedisAsyncCommands ) nativeConnection)
-            logger.debug("Jedis:---status:"+status);
+            logger.debug("lettuce single:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
+            status = ((RedisAsyncCommands ) nativeConnection).getStatefulConnection().sync().set(keyByte,keyByte, SetArgs.Builder.nx().ex(30));
+            logger.debug("lettuce single:---status:"+status);
           }
           return status;
         }
       });
       logger.debug("getLock:---status:"+status);
       if ("OK".equals(status)) {//抢到锁
-        return new RedisLockInner(stringRedisTemplate, setKey, value);
+        return new RedisLockInner(stringRedisTemplate, key, value);
       }
       if (retryIntervalTimeMillis > 0) {
         try {
@@ -177,22 +162,8 @@ public class RedisAtomicClient {
       List<String> keys = Collections.singletonList(key);
       List<String> valuesList = Collections.singletonList(expectedValue);
       logger.debug("lejianTest5:---keys:"+keys);
-      //stringRedisTemplate.execute(new DefaultRedisScript<>(COMPARE_AND_DELETE, String.class), keys, expectedValue);
-      boolean flag = stringRedisTemplate.execute((RedisCallback<Boolean>) connection -> {
-        Object nativeConnection = connection.getNativeConnection();
-        Long result = 0L;
-        if (nativeConnection instanceof JedisCluster) {    // 集群
-          logger.debug("unlock:---keys:"+keys);
-          result = (Long) ((JedisCluster) nativeConnection).eval(COMPARE_AND_DELETE, keys, valuesList);
-          logger.debug("unlock:---keys:"+keys+"====result"+result);
-        }
-        if (nativeConnection instanceof Jedis) {         // 单机
-          logger.debug("unlock:---keys:"+keys);
-          result = (Long) ((Jedis) nativeConnection).eval(COMPARE_AND_DELETE, keys, valuesList);
-          logger.debug("unlock:---keys:"+keys+"====result"+result);
-        }
-        return result == 1L;
-      });
+      boolean flag = stringRedisTemplate.delete(key);
+
       return flag;
     }
 

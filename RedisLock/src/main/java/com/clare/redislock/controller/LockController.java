@@ -1,15 +1,14 @@
 package com.clare.redislock.controller;
 
-import com.clare.redislock.RedisAtomicClient;
-import com.clare.redislock.RedisGenClient;
+import com.clare.redislock.RedisSelfNxImplClient;
+import com.clare.redislock.StringRedisTemplateImplClient;
+import com.clare.redislock.RedisLock;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.SwaggerDefinition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,9 +29,9 @@ public class LockController {
     @ApiOperation(value = "/doRedisLock")
     public boolean doRedisLock(@ApiParam(value = "key") @RequestParam("key") String key){
         try {
-            RedisGenClient redisGenClient = new RedisGenClient(redisTemplate);
+            StringRedisTemplateImplClient redisGenClient = new StringRedisTemplateImplClient(redisTemplate);
 
-            boolean flag = redisGenClient.addRedisLock(key, "", 30);
+            boolean flag = redisGenClient.addRedisLock(key, "", 10);
 
             return flag;
         }catch (Exception e){
@@ -46,11 +45,11 @@ public class LockController {
     @ApiOperation(value = "/doRedisLockAuto")
     public boolean doRedisLockAuto(@ApiParam(value = "key") @RequestParam("key") String key){
         try {
-            RedisAtomicClient redisGenClient = new RedisAtomicClient(redisTemplate);
+            RedisSelfNxImplClient redisAutoClient = new RedisSelfNxImplClient(redisTemplate);
 
-            redisGenClient.getLock(key,300);
-
-            return true;
+            RedisLock redisLock = redisAutoClient.getLock(key,300);
+            boolean flag = redisLock.unlock();
+            return flag;
         }catch (Exception e){
             e.printStackTrace();
         }
