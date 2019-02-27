@@ -1,12 +1,21 @@
 package com.clare.redislock;
 
+import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.DefaultedRedisConnection;
+import org.springframework.data.redis.connection.RedisClusterConnection;
 import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 
@@ -112,14 +121,17 @@ public class RedisAtomicClient {
         public String doInRedis(RedisConnection connection) throws DataAccessException {
           Object nativeConnection = connection.getNativeConnection();
           String status = null;
-          if (nativeConnection instanceof JedisCluster) {
+          RedisSerializer<String> stringRedisSerializer = (RedisSerializer<String>) stringRedisTemplate.getKeySerializer();
+
+          byte[] keyByte = stringRedisSerializer.serialize(key);
+          if (nativeConnection instanceof RedisAdvancedClusterAsyncCommands) {
             logger.debug("JedisCluster1:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
-            status = ((JedisCluster) nativeConnection).set(setKey, value, "NX", "EX", expireSeconds);
+            status = ((RedisClusterConnection) nativeConnection).set(setKey, value, "NX", "EX", expireSeconds);
             logger.debug("JedisCluster:---status:"+status);
           }
-          if (nativeConnection instanceof Jedis) {
+          if (nativeConnection instanceof RedisAsyncCommands) {
             logger.debug("Jedis1:---setKey:"+setKey+"---value"+value+"---maxTimes:"+expireSeconds);
-            status = ((Jedis) nativeConnection).set(setKey, value, "NX", "EX", expireSeconds);
+            status = ((RedisAsyncCommands ) nativeConnection)
             logger.debug("Jedis:---status:"+status);
           }
           return status;
