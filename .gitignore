@@ -1,3 +1,5 @@
 /spring-shiro-plat/.idea
 /spring-shiro-plat/.settings
 /spring-shiro-plat/*.iml
+/spring-shiro-plat/*.project
+/spring-shiro-plat/*.classpath
