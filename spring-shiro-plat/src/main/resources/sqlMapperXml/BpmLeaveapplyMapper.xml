@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.TechPlat.mapper.BpmLeaveapplyMapper">
+
+	<!-- 通用查询映射结果 -->
+	<resultMap id="BaseResultMap" type="com.TechPlat.model.LeaveApply">
+		<id column="id" property="id" />
+		<result column="process_instance_id" property="processInstanceId" />
+		<result column="user_id" property="userId" />
+		<result column="start_leave_time" property="startLeaveTime" />
+		<result column="end_leave_time" property="endLeaveTime" />
+		<result column="leave_type" property="leaveType" />
+		<result column="reason" property="reason" />
+		<result column="apply_time" property="applyTime" />
+		<result column="reality_start_time" property="realityStartTime" />
+		<result column="reality_end_time" property="realityEndTime" />
+		<result column="memo" property="memo" />
+	</resultMap>
+
+</mapper>

@@ -6,16 +6,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.activiti.engine.TaskService;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.TechPlat.commons.result.PageInfo;
+import com.TechPlat.commons.shiro.ShiroUser;
 import com.TechPlat.mapper.TaskMapper;
 import com.TechPlat.model.ScheduleJob;
 import com.TechPlat.model.Task;
 import com.TechPlat.service.ITaskService;
-
 import com.TechPlat.task.TaskManager;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.baomidou.mybatisplus.service.impl.ServiceImpl;
@@ -35,6 +36,9 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 	private TaskMapper taskMapper;
 	@Autowired
 	private TaskManager taskManger;
+	
+	@Autowired
+	private TaskService activeTaskService;
 
 	@Override
 	public void selectDataGrid(PageInfo pageInfo) {
@@ -128,6 +132,15 @@ public class TaskServiceImpl extends ServiceImpl<TaskMapper, Task> implements IT
 			e.printStackTrace();
 			return false;
 		}
+		
+	}
+
+	@Override
+	public void processApprove(String taskId, ShiroUser shiroUser,
+			Map<String, Object> variables) {
+		activeTaskService.claim(taskId, String.valueOf(shiroUser.getId()));
+		activeTaskService.complete(taskId, variables);
+		
 		
 	}
 

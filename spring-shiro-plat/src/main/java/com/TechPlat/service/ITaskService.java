@@ -1,7 +1,10 @@
 package com.TechPlat.service;
 
 
+import java.util.Map;
+
 import com.TechPlat.commons.result.PageInfo;
+import com.TechPlat.commons.shiro.ShiroUser;
 import com.TechPlat.model.ScheduleJob;
 import com.TechPlat.model.Task;
 import com.baomidou.mybatisplus.service.IService;
@@ -26,4 +29,6 @@ public interface ITaskService extends IService<Task> {
 	boolean startTask(ScheduleJob job);
 	
 	boolean editTask(ScheduleJob job);
+	
+	void processApprove(String taskId,ShiroUser shiroUser,Map<String,Object> variables);
 }
